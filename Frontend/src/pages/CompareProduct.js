@@ -12,7 +12,7 @@ const CompareProduct = () => {
       <BreadCrumb title="Compare Products" />
       <Container class1="compare-product-wrapper py-5 home-wrapper-2">
         <div className="row">
-          <div className="col-3">
+          <div className="col-12 col-md-6 col-lg-3 mb-3">
             <div className="compare-product-card position-relative">
               <img
                 src={watch}
@@ -56,7 +56,7 @@ const CompareProduct = () => {
               </div>
             </div>
           </div>
-          <div className="col-3">
+          <div className="col-12 col-md-6 col-lg-3 mb-3">
             <div className="compare-product-card position-relative">
               <img
                 src="images/cross.svg"

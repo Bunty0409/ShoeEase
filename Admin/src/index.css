@@ -126,9 +126,53 @@ main::-webkit-scrollbar {
   color: var(--text-title) !important;
 }
 .error {
-  color: red;
+  color: #ef4444;
   font-size: 12px;
 }
+
+/* Form field validation styles */
+.field-error {
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: slideIn 0.18s ease;
+}
+
+.field-error::before {
+  content: "⚠";
+  font-size: 11px;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-subtitle);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--text-subtitle);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.form-control.is-invalid,
+select.form-control.is-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.15) !important;
+}
+
 
 /* Admin Responsive Media Queries */
 @media (max-width: 991px) {
@@ -155,3 +199,160 @@ main::-webkit-scrollbar {
     margin: 8px !important;
   }
 }
+
+/* --- Form Inputs Theme Adaptations --- */
+.form-control, 
+.form-select, 
+select.form-control,
+input.form-control,
+textarea.form-control {
+  background-color: var(--bg-card) !important;
+  color: var(--text-title) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Floating labels text color and background */
+.form-floating > label {
+  color: var(--text-subtitle) !important;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  color: #6366f1 !important;
+}
+
+.form-floating > .form-control:focus ~ label::after,
+.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
+.form-floating > .form-select ~ label::after {
+  background-color: var(--bg-card) !important;
+}
+
+/* Input Placeholder color */
+.form-control::placeholder {
+  color: var(--text-subtitle) !important;
+  opacity: 0.6;
+}
+
+/* Focus states */
+.form-control:focus, 
+.form-select:focus,
+select.form-control:focus {
+  background-color: var(--bg-card) !important;
+  color: var(--text-title) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25) !important;
+}
+
+/* HTML select options */
+select.form-control option {
+  background-color: var(--bg-card);
+  color: var(--text-title);
+}
+
+/* React Quill Text Editor styling for theme support */
+.ql-toolbar.ql-snow {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ql-container.ql-snow {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-title) !important;
+}
+
+.ql-snow .ql-stroke {
+  stroke: var(--text-title) !important;
+}
+
+.ql-snow .ql-fill {
+  fill: var(--text-title) !important;
+}
+
+.ql-snow .ql-picker {
+  color: var(--text-title) !important;
+}
+
+.ql-snow .ql-picker-options {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Ant Design Select component adjustments to match form controls */
+.ant-select-selector {
+  background-color: var(--bg-card) !important;
+  color: var(--text-title) !important;
+  border-color: var(--border-color) !important;
+  height: 58px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ant-select-selection-placeholder {
+  color: var(--text-subtitle) !important;
+  opacity: 0.6;
+}
+
+/* --- Ant Design Modal Theme Adaptations --- */
+.ant-modal-content {
+  background-color: var(--bg-card) !important;
+  color: var(--text-title) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ant-modal-header {
+  background-color: var(--bg-card) !important;
+  color: var(--text-title) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 12px !important;
+}
+
+.ant-modal-title {
+  color: var(--text-title) !important;
+  background-color: var(--bg-card) !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.ant-modal-body {
+  color: var(--text-title) !important;
+  font-size: 15px !important;
+  padding: 8px 0 !important;
+}
+
+.ant-modal-body p {
+  color: var(--text-title) !important;
+  margin-bottom: 0 !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid var(--border-color) !important;
+  padding-top: 12px !important;
+  margin-top: 16px !important;
+}
+
+.ant-modal-close {
+  color: var(--text-subtitle) !important;
+}
+
+.ant-modal-close:hover {
+  color: var(--text-title) !important;
+}
+
+.ant-modal-footer .ant-btn-default {
+  background-color: var(--bg-main) !important;
+  color: var(--text-title) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-modal-footer .ant-btn-default:hover {
+  background-color: var(--bg-card) !important;
+  border-color: #6366f1 !important;
+  color: #6366f1 !important;
+}
+
+

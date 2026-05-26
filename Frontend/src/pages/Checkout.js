@@ -218,7 +218,7 @@ const Checkout = () => {
     <>
       <Container class1="checkout-wrapper py-5 home-wrapper-2">
         <div className="row">
-          <div className="col-7">
+          <div className="col-12 col-md-7">
             <div className="checkout-left-data">
               <h3 className="website-name">Cart Corner</h3>
               <nav
@@ -381,7 +381,7 @@ const Checkout = () => {
                   </div>
                 </div>
                 <div className="w-100">
-                  <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-15 mt-3">
                     <Link to="/cart" className="text-dark">
                       <BiArrowBack className="me-2" />
                       Return to Cart
@@ -397,7 +397,7 @@ const Checkout = () => {
               </form>
             </div>
           </div>
-          <div className="col-5">
+          <div className="col-12 col-md-5 mt-4 mt-md-0">
             <div className="border-bottom py-4">
               {cartState &&
                 cartState?.map((item, index) => {

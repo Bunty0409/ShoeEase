@@ -12,6 +12,7 @@ import "react-bootstrap-typeahead/css/Typeahead.css";
 import { getAProduct, getAllProducts } from "../features/products/productSlilce";
 import { getUserCart } from "../features/user/userSlice";
 import { getCategories } from "../features/pcategory/pcategorySlice";
+import { productSevice } from "../features/products/productService";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const Header = () => {
   const [paginate, setPaginate] = useState(true);
   const productState = useSelector((state) => state?.product?.product);
   const categoryState = useSelector((state) => state?.pCategory?.pCategories);
+  const [masterProducts, setMasterProducts] = useState([]);
   const navigate = useNavigate();
 
   const getTokenFromLocalStorage = localStorage.getItem("customer")
@@ -57,6 +59,7 @@ const Header = () => {
     dispatch(getCategories());
     dispatch(getAllProducts());
     dispatch(getUserCart(config2));
+    productSevice.getProducts().then((res) => setMasterProducts(res));
   }, []);
 
   const [productOpt, setProductOpt] = useState([]);
@@ -215,7 +218,14 @@ const Header = () => {
                       aria-labelledby="dropdownMenuButton1"
                     >
                       {categoryState &&
-                        categoryState.map((item, index) => (
+                        masterProducts &&
+                        categoryState
+                          .filter((category) =>
+                            masterProducts.some(
+                              (product) => product?.category === category?.title
+                            )
+                          )
+                          .map((item, index) => (
                             <li key={index}>
                               {/* Navigate to /product and pass the chosen
                                   category via location.state so OurStore can
@@ -250,7 +260,7 @@ const Header = () => {
                         style={{ backgroundColor: "#232f3e" }}
                         onClick={handleLogout}
                       >
-                        LogOut
+                                    LogOut
                       </button>
                     ) : (
                       ""

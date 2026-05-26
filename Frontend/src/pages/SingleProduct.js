@@ -3,7 +3,6 @@ import ReactStars from "react-rating-stars-component";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import ProductCard from "../components/ProductCard";
-import ReactImageZoom from "react-image-zoom";
 import Color from "../components/Color";
 import { TbGitCompare } from "react-icons/tb";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
@@ -22,6 +21,7 @@ import { addProdToCart, getUserCart } from "../features/user/userSlice";
 
 const SingleProduct = () => {
   const [color, setColor] = useState(null);
+  const [colorError, setColorError] = useState(false);
   const thumbsRef = useRef(null);
   const [mainImageIndex, setMainImageIndex] = useState(0);
 
@@ -61,29 +61,31 @@ const SingleProduct = () => {
 
   const uploadCart = () => {
     if (color === null) {
-      toast.error("Please choose Color");
-    } else {
-      dispatch(
-        addProdToCart({
-          productId: productState?._id,
-          quantity,
-          color,
-          price: productState?.price,
-        }),
-        navigate("/cart"),
-      );
+      setColorError(true);
+      toast.error("Please choose a Color");
+      return;
     }
+    setColorError(false);
+    dispatch(
+      addProdToCart({
+        productId: productState?._id,
+        quantity,
+        color,
+        price: productState?.price,
+      })
+    );
+    navigate("/cart");
+  };
+
+  const handleColorSelect = (id) => {
+    setColor(id);
+    setColorError(false);
   };
   const mainImgUrl =
     productState?.images?.[mainImageIndex]?.url ||
     "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg";
 
-  const props = {
-    width: 400,
-    height: 400,
-    zoomWidth: 500,
-    img: mainImgUrl,
-  };
+
 
   const nextImage = () => {
     const len = productState?.images?.length || 0;
@@ -165,45 +167,25 @@ const SingleProduct = () => {
       <BreadCrumb title={productState?.title} />
       <Container class1="main-product-wrapper py-5 home-wrapper-2">
         <div className="row">
-          <div className="col-6">
+          <div className="col-12 col-md-6">
             <div className="main-product-image position-relative">
               <div>
-                <ReactImageZoom {...props} />
+                <img src={mainImgUrl} alt={productState?.title || "Product Image"} />
               </div>
               {/* main image arrows */}
               <button
                 type="button"
+                className="main-image-arrow left"
                 onClick={prevImage}
                 aria-label="previous image"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: 10,
-                  transform: "translateY(-50%)",
-                  background: "rgba(255,255,255,0.8)",
-                  border: "none",
-                  padding: "8px 10px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
               >
                 &#10094;
               </button>
               <button
                 type="button"
+                className="main-image-arrow right"
                 onClick={nextImage}
                 aria-label="next image"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: 10,
-                  transform: "translateY(-50%)",
-                  background: "rgba(255,255,255,0.8)",
-                  border: "none",
-                  padding: "8px 10px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
               >
                 &#10095;
               </button>
@@ -212,25 +194,14 @@ const SingleProduct = () => {
             <div className="other-product-images d-flex gap-15 align-items-center mt-3">
               <button
                 onClick={() => thumbScroll("prev")}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  fontSize: 20,
-                  cursor: "pointer",
-                }}
+                className="thumb-arrow"
                 aria-label="previous thumbnails"
               >
                 &#10094;
               </button>
               <div
                 ref={thumbsRef}
-                style={{
-                  display: "flex",
-                  overflowX: "auto",
-                  gap: 12,
-                  padding: "6px 4px",
-                  scrollbarWidth: "thin",
-                }}
+                className="thumbs-container"
               >
                 {(productState?.images || []).map((item, index) => {
                   const isActive = mainImageIndex === index;
@@ -239,29 +210,15 @@ const SingleProduct = () => {
                       key={index}
                       onMouseEnter={() => setMainImageIndex(index)}
                       onClick={() => setMainImageIndex(index)}
-                      style={{
-                        minWidth: 80,
-                        minHeight: 80,
-                        borderRadius: 6,
-                        padding: 4,
-                        boxSizing: "border-box",
-                        border: isActive
-                          ? "2px solid #1890ff"
-                          : "1px solid #eaeaea",
-                        cursor: "pointer",
-                        background: "#fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                      className={`product-thumbnail ${isActive ? "active" : ""}`}
                     >
                       <img
                         src={item?.url}
                         alt={`thumb-${index}`}
+                        className="img-fluid"
                         style={{
-                          maxWidth: "100%",
-                          maxHeight: "100%",
                           objectFit: "contain",
+                          maxHeight: "100%",
                         }}
                       />
                     </div>
@@ -270,19 +227,14 @@ const SingleProduct = () => {
               </div>
               <button
                 onClick={() => thumbScroll("next")}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  fontSize: 20,
-                  cursor: "pointer",
-                }}
+                className="thumb-arrow"
                 aria-label="next thumbnails"
               >
                 &#10095;
               </button>
             </div>
           </div>
-          <div className="col-6">
+          <div className="col-12 col-md-6 mt-4 mt-md-0">
             <div className="main-product-details">
               <div className="border-bottom">
                 <h3 className="title">{productState?.title}</h3>
@@ -345,11 +297,19 @@ const SingleProduct = () => {
                 </div> */}
                 {alreadyAdded === false && (
                   <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                    <h3 className="product-heading">Color :</h3>
+                    <h3 className="product-heading">
+                      Color : <span className="color-required">*</span>
+                    </h3>
                     <Color
-                      setColor={setColor}
+                      setColor={handleColorSelect}
                       colorData={productState?.color}
+                      selectedColor={color}
                     />
+                    {colorError && (
+                      <p className="color-error-msg">
+                        ⚠ Please select a color before adding to cart
+                      </p>
+                    )}
                   </div>
                 )}
 

@@ -132,6 +132,9 @@ const OurStore = () => {
                             key={index}
                             onClick={() => setTag(item)}
                             className="text-capitalize badge bg-light text-secondary rounded-3 py-2 px-3"
+                            style={{
+                              cursor: "pointer"
+                            }}
                           >
                             {item}
                           </span>
@@ -150,7 +153,8 @@ const OurStore = () => {
                           <span
                             key={index}
                             onClick={() => setBrand(item)}
-                            className="text-capitalize badge bg-light text-secondary rounded-3 py-2 px-3"
+                            className="text-capitalize badge bg-light text-secondary rounded-3 py-2 px-3" 
+                            style={{cursor: "pointer"}}
                           >
                             {item}
                           </span>
@@ -163,16 +167,16 @@ const OurStore = () => {
           </div>
           <div className="col-12 col-lg-9">
             <div className="filter-sort-grid mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center gap-10">
-                  <p className="mb-0 d-block" style={{ width: "100px" }}>
+              <div className="sort-bar">
+                <div className="sort-left">
+                  <p className="mb-0 sort-label">
                     Sort By:
                   </p>
                   <select
                     name=""
                     defaultValue={"manula"}
-                    className="form-control form-select"
-                    id=""
+                    className="form-control form-select sort-select"
+                    id="sort-select"
                     onChange={(e) => setSort(e.target.value)}
                   >
                     <option value="title">Alphabetically, A-Z</option>
@@ -183,11 +187,11 @@ const OurStore = () => {
                     <option value="-createdAt">Date, new to old</option>
                   </select>
                 </div>
-                <div className="d-flex align-items-center gap-10">
+                <div className="sort-right">
                   <p className="totalproducts mb-0">
                     {productState?.length} Products
                   </p>
-                  <div className="d-flex gap-10 align-items-center grid">
+                  <div className="d-flex gap-10 align-items-center grid flex-row">
                     <img
                       onClick={() => {
                         setGrid(3);

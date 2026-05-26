@@ -51,7 +51,7 @@ const Contact = () => {
             ></iframe>
           </div>
           <div className="col-12 mt-5">
-            <div className="contact-inner-wrapper d-flex justify-content-between ">
+            <div className="contact-inner-wrapper d-flex flex-wrap justify-content-between gap-15">
               <div>
                 <h3 className="contact-title mb-4">Contact</h3>
                 <form

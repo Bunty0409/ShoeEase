@@ -91,12 +91,15 @@ const ProductCard = (props) => {
                 />
               </div>
               <div className="product-details">
-                <h6 className="brand">{item?.brand}</h6>
-                <h5 className="product-title">
-                  {grid === 12 || grid === 6
-                    ? item?.title
-                    : item?.title?.substr(0, 80) + "..."}
-                </h5>
+                <h6 className="brand my-2">{item?.brand}</h6>
+                <span
+                  className="product-title-link"
+                  onClick={() => navigate("/product/" + item?._id)}
+                >
+                  <h5 className="product-title">
+                    {item?.title}
+                  </h5>
+                </span>
                 <ReactStars
                   count={5}
                   size={24}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import BlogCard from "../components/BlogCard";
@@ -9,6 +9,15 @@ import moment from "moment";
 
 const Blog = () => {
   const blogState = useSelector((state) => state?.blog?.blog);
+  const [category, setCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (blogState) {
+      const uniqueCategories = [...new Set(blogState.map((blog) => blog.category))].filter(Boolean);
+      setCategories(uniqueCategories);
+    }
+  }, [blogState]);
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -24,25 +33,41 @@ const Blog = () => {
       <BreadCrumb title="Blogs" />
       <Container class1="blog-wrapper home-wrapper-2 py-5">
         <div className="row">
-          <div className="col-3">
+          <div className="col-12 col-md-3">
             <div className="filter-card mb-3">
               <h3 className="filter-title">Find By Categories</h3>
               <div>
                 <ul className="ps-0">
-                  <li>Watch</li>
-                  <li>Tv</li>
-                  <li>Camera</li>
-                  <li>Laptop</li>
+                  <li
+                    className="mb-2"
+                    onClick={() => setCategory(null)}
+                    style={{ cursor: "pointer", color: category === null ? "var(--color-febd69)" : "var(--color-777777)" }}
+                  >
+                    All
+                  </li>
+                  {categories &&
+                    categories.map((item, index) => (
+                      <li
+                        key={index}
+                        className="text-capitalize mb-2"
+                        onClick={() => setCategory(item)}
+                        style={{ cursor: "pointer", color: category === item ? "var(--color-febd69)" : "var(--color-777777)" }}
+                      >
+                        {item}
+                      </li>
+                    ))}
                 </ul>
               </div>
             </div>
           </div>
-          <div className="col-9">
+          <div className="col-12 col-md-9 mt-4 mt-md-0">
             <div className="row">
               {blogState &&
-                blogState?.map((item, index) => {
+                blogState
+                  ?.filter((item) => category === null || item.category === category)
+                  ?.map((item, index) => {
                   return (
-                    <div className="col-6 mb-3" key={index}>
+                    <div className="col-12 col-md-6 mb-3" key={index}>
                       <BlogCard
                         id={item?._id}
                         title={item?.title}

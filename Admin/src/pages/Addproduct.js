@@ -19,16 +19,39 @@ import {
 } from "../features/product/productSlice";
 
 let schema = yup.object().shape({
-  title: yup.string().required("Title is Required"),
-  description: yup.string().required("Description is Required"),
-  price: yup.number().required("Price is Required"),
-  brand: yup.string().required("Brand is Required"),
-  category: yup.string().required("Category is Required"),
-  tags: yup.string().required("Tag is Required"),
-  // color: yup.array().min(1, "Pick at least one color"),
-  color: yup.array().notRequired(), // color is optional now
-  quantity: yup.number().required("Quantity is Required"),
+  title: yup.string().required("Product title is required"),
+  description: yup
+    .string()
+    .required("Description is required")
+    .test("not-empty-html", "Description is required", (val) =>
+      val ? val.replace(/<[^>]*>/g, "").trim().length > 0 : false
+    ),
+  price: yup
+    .number()
+    .typeError("Price must be a number")
+    .positive("Price must be greater than 0")
+    .required("Price is required"),
+  brand: yup.string().required("Brand is required"),
+  category: yup.string().required("Category is required"),
+  tags: yup.string().required("Tag is required"),
+  color: yup
+    .array()
+    .min(1, "Please select at least one color"),
+  quantity: yup
+    .number()
+    .typeError("Quantity must be a number")
+    .min(1, "Quantity must be at least 1")
+    .required("Quantity is required"),
+  images: yup
+    .array()
+    .min(1, "Please add at least one product image"),
 });
+
+// Helper: red error text under a field
+const FieldError = ({ name, formik }) =>
+  formik.touched[name] && formik.errors[name] ? (
+    <div className="field-error">{formik.errors[name]}</div>
+  ) : null;
 
 const Addproduct = () => {
   const dispatch = useDispatch();
@@ -62,14 +85,12 @@ const Addproduct = () => {
     productImages,
   } = newProduct;
 
-  // Load dropdown data
   useEffect(() => {
     dispatch(getBrands());
     dispatch(getCategories());
     dispatch(getColors());
   }, []);
 
-  // Fetch product if editing
   useEffect(() => {
     if (getProductId) {
       dispatch(getAProduct(getProductId));
@@ -78,21 +99,6 @@ const Addproduct = () => {
     }
   }, [getProductId]);
 
-  // ─── Success / Error Handling ───────────────────────────────────────────
-  //
-  // BUG FIX: Two problems caused "can't re-open Edit after first update":
-  //
-  // 1. resetState() was never dispatched after updateAProduct succeeded, so
-  //    `updatedProduct` and `isSuccess` stayed truthy in Redux indefinitely.
-  //
-  // 2. When the user navigated back to the list and clicked Edit again,
-  //    Addproduct mounted, `getAProduct` resolved (setting isSuccess=true),
-  //    and this useEffect immediately saw isSuccess && updatedProduct === truthy
-  //    → it called navigate() again before the form ever rendered.
-  //
-  // Fix: dispatch resetState() BEFORE navigating so Redux is clean for the
-  // next visit. Also track `updatedProduct` directly in the dep array so
-  // the effect only fires when it genuinely changes.
   useEffect(() => {
     if (isError) {
       toast.error("Something Went Wrong!");
@@ -108,13 +114,11 @@ const Addproduct = () => {
   useEffect(() => {
     if (isSuccess && updatedProduct) {
       toast.success("Product Updated Successfully!");
-      // Clear Redux state FIRST so stale flags don't trigger redirect on next visit
       dispatch(resetState());
       navigate("/admin/list-product");
     }
   }, [isSuccess, updatedProduct]);
 
-  // Formik
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -132,7 +136,6 @@ const Addproduct = () => {
     onSubmit: (values) => {
       if (getProductId) {
         dispatch(updateAProduct({ id: getProductId, productData: values }));
-        // Note: toast is shown by the useEffect above once Redux confirms success
       } else {
         dispatch(createProducts(values));
         formik.resetForm();
@@ -145,31 +148,26 @@ const Addproduct = () => {
     },
   });
 
-  // Prefill images
   useEffect(() => {
     if (productImages) {
       setImages(productImages.map((img) => ({ url: img.url })));
     }
   }, [productImages]);
 
-  // Prefill colors
   useEffect(() => {
     if (productColors) {
       setColor(productColors.map((c) => c._id));
     }
   }, [productColors]);
 
-  // Sync images to formik
   useEffect(() => {
     formik.setFieldValue("images", images);
   }, [images]);
 
-  // Sync colors
   useEffect(() => {
     formik.setFieldValue("color", color);
   }, [color]);
 
-  // Color options
   const coloropt = colorState.map((i) => ({
     label: (
       <div
@@ -179,7 +177,7 @@ const Addproduct = () => {
           backgroundColor: i.title,
           borderRadius: "50%",
         }}
-      ></div>
+      />
     ),
     value: i._id,
   }));
@@ -189,131 +187,205 @@ const Addproduct = () => {
       <h3 className="mb-4 title">{getProductId ? "Edit" : "Add"} Product</h3>
 
       <form onSubmit={formik.handleSubmit} className="d-flex flex-column gap-3">
-        <CustomInput
-          type="text"
-          label="Enter Product Title"
-          name="title"
-          val={formik.values.title}
-          onChng={formik.handleChange("title")}
-          onBlr={formik.handleBlur("title")}
-        />
+        {/* Title */}
+        <div>
+          <CustomInput
+            type="text"
+            label="Enter Product Title *"
+            name="title"
+            val={formik.values.title}
+            onChng={formik.handleChange("title")}
+            onBlr={formik.handleBlur("title")}
+          />
+          <FieldError name="title" formik={formik} />
+        </div>
 
-        <ReactQuill
-          theme="snow"
-          value={formik.values.description}
-          onChange={(value) => formik.setFieldValue("description", value)}
-        />
+        {/* Description */}
+        <div>
+          <label className="field-label">Description *</label>
+          <ReactQuill
+            theme="snow"
+            value={formik.values.description}
+            onChange={(value) => {
+              formik.setFieldValue("description", value);
+              formik.setFieldTouched("description", true, false);
+            }}
+          />
+          <FieldError name="description" formik={formik} />
+        </div>
 
-        <CustomInput
-          type="number"
-          label="Enter Product Price"
-          name="price"
-          val={formik.values.price}
-          onChng={formik.handleChange("price")}
-          onBlr={formik.handleBlur("price")}
-        />
+        {/* Price */}
+        <div>
+          <CustomInput
+            type="number"
+            label="Enter Product Price *"
+            name="price"
+            val={formik.values.price}
+            onChng={formik.handleChange("price")}
+            onBlr={formik.handleBlur("price")}
+          />
+          <FieldError name="price" formik={formik} />
+        </div>
 
         {/* Brand */}
-        <select
-          name="brand"
-          value={formik.values.brand}
-          onChange={formik.handleChange("brand")}
-          className="form-control"
-        >
-          <option value="">Select Brand</option>
-          {brandState.map((i) => (
-            <option key={i._id} value={i.title}>
-              {i.title}
-            </option>
-          ))}
-        </select>
+        <div>
+          <label className="field-label">Brand *</label>
+          <select
+            name="brand"
+            value={formik.values.brand}
+            onChange={formik.handleChange("brand")}
+            onBlur={formik.handleBlur("brand")}
+            className={`form-control${
+              formik.touched.brand && formik.errors.brand ? " is-invalid" : ""
+            }`}
+          >
+            <option value="">Select Brand</option>
+            {brandState.map((i) => (
+              <option key={i._id} value={i.title}>
+                {i.title}
+              </option>
+            ))}
+          </select>
+          <FieldError name="brand" formik={formik} />
+        </div>
 
         {/* Category */}
-        <select
-          name="category"
-          value={formik.values.category}
-          onChange={formik.handleChange("category")}
-          className="form-control"
-        >
-          <option value="">Select Category</option>
-          {catState.map((i) => (
-            <option key={i._id} value={i.title}>
-              {i.title}
-            </option>
-          ))}
-        </select>
+        <div>
+          <label className="field-label">Category *</label>
+          <select
+            name="category"
+            value={formik.values.category}
+            onChange={formik.handleChange("category")}
+            onBlur={formik.handleBlur("category")}
+            className={`form-control${
+              formik.touched.category && formik.errors.category ? " is-invalid" : ""
+            }`}
+          >
+            <option value="">Select Category</option>
+            {catState.map((i) => (
+              <option key={i._id} value={i.title}>
+                {i.title}
+              </option>
+            ))}
+          </select>
+          <FieldError name="category" formik={formik} />
+        </div>
 
         {/* Tags */}
-        <select
-          name="tags"
-          value={formik.values.tags}
-          onChange={formik.handleChange("tags")}
-          className="form-control"
-        >
-          <option value="">Select Tag</option>
-          <option value="featured">Featured</option>
-          <option value="popular">Popular</option>
-          <option value="special">Special</option>
-        </select>
+        <div>
+          <label className="field-label">Tag *</label>
+          <select
+            name="tags"
+            value={formik.values.tags}
+            onChange={formik.handleChange("tags")}
+            onBlur={formik.handleBlur("tags")}
+            className={`form-control${
+              formik.touched.tags && formik.errors.tags ? " is-invalid" : ""
+            }`}
+          >
+            <option value="">Select Tag</option>
+            <option value="featured">Featured</option>
+            <option value="popular">Popular</option>
+            <option value="special">Special</option>
+          </select>
+          <FieldError name="tags" formik={formik} />
+        </div>
 
         {/* Colors */}
-        <Select
-          mode="multiple"
-          className="w-100"
-          placeholder="Select colors"
-          value={formik.values.color}
-          onChange={(val) => setColor(val)}
-          options={coloropt}
-        />
+        <div>
+          <label className="field-label">Colors * <span style={{fontWeight:400, fontSize:11}}>(select at least one)</span></label>
+          <Select
+            mode="multiple"
+            className="w-100"
+            placeholder="Select colors"
+            value={formik.values.color}
+            onChange={(val) => {
+              setColor(val);
+              formik.setFieldTouched("color", true, false);
+            }}
+            onBlur={() => formik.setFieldTouched("color", true)}
+            options={coloropt}
+          />
+          {formik.touched.color && formik.errors.color && (
+            <div className="field-error">{formik.errors.color}</div>
+          )}
+        </div>
 
-        <CustomInput
-          type="number"
-          label="Enter Product Quantity"
-          name="quantity"
-          val={formik.values.quantity}
-          onChng={formik.handleChange("quantity")}
-        />
+        {/* Quantity */}
+        <div>
+          <CustomInput
+            type="number"
+            label="Enter Product Quantity *"
+            name="quantity"
+            val={formik.values.quantity}
+            onChng={formik.handleChange("quantity")}
+            onBlr={formik.handleBlur("quantity")}
+          />
+          <FieldError name="quantity" formik={formik} />
+        </div>
 
         {/* Image URL */}
         <div>
-          <input
-            type="text"
-            placeholder="Enter Image URL"
-            className="form-control mb-2"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              if (imageUrl) {
-                setImages([...images, { url: imageUrl }]);
-                setImageUrl("");
-              }
-            }}
-          >
-            Add Image
-          </button>
-        </div>
-
-        {/* Preview */}
-        <div className="d-flex gap-3 flex-wrap">
-          {images.map((img, i) => (
-            <div key={i} className="position-relative">
-              <button
-                type="button"
-                className="btn-close position-absolute"
-                onClick={() =>
-                  setImages(images.filter((_, index) => index !== i))
+          <label className="field-label">Product Images * <span style={{fontWeight:400, fontSize:11}}>(add at least one)</span></label>
+          <div className="d-flex gap-2">
+            <input
+              type="text"
+              placeholder="Paste image URL and click Add"
+              className="form-control"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              onBlur={() => formik.setFieldTouched("images", true)}
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                if (imageUrl.trim()) {
+                  setImages([...images, { url: imageUrl.trim() }]);
+                  setImageUrl("");
+                  formik.setFieldTouched("images", true, false);
+                } else {
+                  toast.warning("Please enter an image URL first");
                 }
-              ></button>
-              <img src={img.url} width={200} height={200} alt="" />
-            </div>
-          ))}
+              }}
+            >
+              Add
+            </button>
+          </div>
+          {formik.touched.images && formik.errors.images && (
+            <div className="field-error">{formik.errors.images}</div>
+          )}
+          {images.length === 0 && !formik.touched.images && (
+            <p className="field-hint mt-1">No images added yet.</p>
+          )}
         </div>
 
-        <button type="submit" className="btn btn-success">
+        {/* Image Preview */}
+        {images.length > 0 && (
+          <div className="d-flex gap-3 flex-wrap">
+            {images.map((img, i) => (
+              <div key={i} className="position-relative">
+                <button
+                  type="button"
+                  className="btn-close position-absolute"
+                  style={{ top: 4, right: 4, zIndex: 1 }}
+                  onClick={() =>
+                    setImages(images.filter((_, index) => index !== i))
+                  }
+                />
+                <img
+                  src={img.url}
+                  width={120}
+                  height={120}
+                  alt={`preview-${i}`}
+                  style={{ objectFit: "cover", borderRadius: 8, border: "1px solid #e2e8f0" }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button type="submit" className="btn btn-success border-0 rounded-3 py-2">
           {getProductId ? "Update" : "Add"} Product
         </button>
       </form>

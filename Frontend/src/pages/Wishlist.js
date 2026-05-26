@@ -33,7 +33,7 @@ const Wishlist = () => {
           {wishlistState &&
             wishlistState?.map((item, index) => {
               return (
-                <div className="col-3" key={index}>
+                <div className="col-12 col-md-6 col-lg-3 mb-3" key={index}>
                   <div className="wishlist-card position-relative">
                     <img
                       onClick={() => {
