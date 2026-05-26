@@ -17,7 +17,7 @@ import {
   getAllProducts,
 } from "../features/products/productSlilce";
 import { toast } from "react-toastify";
-import { addProdToCart, getUserCart } from "../features/user/userSlice";
+import { addProdToCart, getUserCart, getuserProductWishlist } from "../features/user/userSlice";
 
 const SingleProduct = () => {
   const [color, setColor] = useState(null);
@@ -42,6 +42,9 @@ const SingleProduct = () => {
     dispatch(getAProduct(getProductId));
     dispatch(getUserCart());
     dispatch(getAllProducts());
+    if (localStorage.getItem("customer")) {
+      dispatch(getuserProductWishlist());
+    }
   }, [dispatch, getProductId]);
 
   // reset main image index when product loads
@@ -139,7 +142,15 @@ const SingleProduct = () => {
   const [like, setLike] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
+  useEffect(() => {
+    if (wishlistState && getProductId) {
+      const alreadyLiked = wishlistState.some((item) => item._id === getProductId);
+      setIsFilled(alreadyLiked);
+    }
+  }, [wishlistState, getProductId]);
+
   const handleToggle = () => {
+    dispatch(addToWishlist(getProductId));
     setIsFilled(!isFilled);
   };
 

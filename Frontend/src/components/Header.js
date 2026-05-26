@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Typeahead } from "react-bootstrap-typeahead";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import { getAProduct, getAllProducts } from "../features/products/productSlilce";
-import { getUserCart } from "../features/user/userSlice";
+import { getUserCart, getuserProductWishlist } from "../features/user/userSlice";
 import { getCategories } from "../features/pcategory/pcategorySlice";
 import { productSevice } from "../features/products/productService";
 
@@ -58,7 +58,10 @@ const Header = () => {
     // regardless of which page the user lands on first.
     dispatch(getCategories());
     dispatch(getAllProducts());
-    dispatch(getUserCart(config2));
+    if (getTokenFromLocalStorage !== null) {
+      dispatch(getUserCart(config2));
+      dispatch(getuserProductWishlist());
+    }
     productSevice.getProducts().then((res) => setMasterProducts(res));
   }, []);
 
