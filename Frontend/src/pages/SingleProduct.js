@@ -345,7 +345,7 @@ const SingleProduct = () => {
                     className={
                       alreadyAdded
                         ? "ms-0"
-                        : "ms-5" + "d-flex align-items-center gap-30"
+                        : "ms-5 d-flex align-items-center gap-30"
                     }
                   >
                     <button
@@ -392,14 +392,15 @@ const SingleProduct = () => {
                 </div>
                 <div className="d-flex gap-10 align-items-center my-3">
                   <h3 className="product-heading">Product Link:</h3>
-                  <a
-                    href="javascript:void(0);"
+                  <button
+                    className="border-0 bg-transparent text-primary text-decoration-underline p-0 align-baseline"
+                    style={{ cursor: "pointer" }}
                     onClick={() => {
                       copyToClipboard(window.location.href);
                     }}
                   >
                     Copy Product Link
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -442,7 +443,7 @@ const SingleProduct = () => {
                 </div>
                 {orderedProduct && (
                   <div>
-                    <a className="text-dark text-decoration-underline" href="">
+                    <a className="text-dark text-decoration-underline" href="#review">
                       Write a Review
                     </a>
                   </div>
